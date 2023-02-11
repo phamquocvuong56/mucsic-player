@@ -1,7 +1,7 @@
 import React from "react";
 import { clsx } from "clsx";
-import { DashOutlined } from "@ant-design/icons";
 import ModalClickItem from "./ModalClickItem";
+import {DotIcon} from '../../icons/index'
 const RenderSongs = ({
   songs,
   handleClickSongItem,
@@ -57,7 +57,11 @@ const RenderSongs = ({
                 setShowOptions({ isShow: false, id: "" });
               }}
             >
-              <DashOutlined className="font-bold option"></DashOutlined>
+              <div className="font-bold option">
+			  <DotIcon className='dot-icon' style={{fontSize:'10px'}}/>
+			  <DotIcon className='dot-icon' style={{fontSize:'10px'}}/>
+			  <DotIcon className='dot-icon' style={{fontSize:'10px'}}/>
+			  </div>
               {showOptions.id === song.id && showOptions.isShow && (
                 <ModalClickItem
                   setShowOptions={setShowOptions}
