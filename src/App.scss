@@ -129,6 +129,7 @@
 
 .playlist {
   width: 480px;
+  overflow: hidden;
   .no-song-item {
     color: #d5176b;
     font-weight: bold;
@@ -197,6 +198,18 @@
 
 .btn.active svg {
   filter: drop-shadow(0 0 8px #ff006f);
+}
+.option:hover svg{
+  margin-left: 2px;
+  font-size: 16px;
+}
+.option svg{
+  margin-left: 0px;
+  transition: .3s;
+}
+.option {
+  display: flex;
+  align-items: center;
 }
 
 @keyframes bgChanges {
@@ -278,9 +291,39 @@
 }
 .song-item {
   position: relative;
+  transition: .4s;
+}
+.song-item:hover {
+  background-color: rgb(201, 72, 72);
+  box-shadow:0 0 8px rgb(223, 103, 103),0 0 12px rgb(219, 172, 172) ;
 }
 .song-item.active {
   background-color: rgb(201, 72, 72);
+  .dot-icon {
+    animation: 3s upAndDown 0s ease-in-out infinite;
+    transition: .3s;
+  }
+  .dot-icon:nth-child(2) {
+    animation: 3s upAndDown 1s ease-in-out infinite;
+  }
+  .dot-icon:nth-child(3) {
+    animation: 3s upAndDown 2s ease-in-out infinite;
+  }
+}
+@keyframes upAndDown {
+  0%,100%{
+    transform: translate(0, 0px);
+  }
+  25%{
+    transform: translate(0, -2px);
+  }
+  50%{
+    transform: translate(0, 0px);
+  }
+  75%{
+    transform: translate(0, 2px);
+  }
+
 }
 
 .cd-left {
@@ -339,7 +382,7 @@
 }
 
 .modal-item-wrapper {
-  transition: .6s;
+  animation: appear .4s forwards;
   width: 100px;
   height: fit-content;
   border-radius: 4px;
@@ -389,5 +432,13 @@
       bottom: 0;
       left: -20px;
     }
+  }
+}
+@keyframes appear {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }

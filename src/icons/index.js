@@ -1,2 +1,3 @@
 import SpeakerIcon from './SpeakerIcon';
-export { SpeakerIcon };
+import DotIcon from './DotIcon';
+export { SpeakerIcon , DotIcon };

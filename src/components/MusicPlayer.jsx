@@ -131,13 +131,14 @@ const MusicPlayer = () => {
     },
   ]);
   const [currentSong, setCurrentSong] = useState(songs[0] || {});
-  const [currentId, setCurrentId] = useState(songs[0]?.id?songs[0].id:'');
+  const [currentId, setCurrentId] = useState(songs[0]?.id ? songs[0].id : "");
   const [currentVolume, setCurrentVolume] = useState(0);
   const [currentPercent, setCurrentPercent] = useState(0);
   const [playedSongs, setPlayedSongs] = useState([...songs]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isRandom, setIsRandom] = useState(false);
+  // const [isScrollToActiveSong, setIsScrollToActiveSong] = useState(false);
   const [showOptions, setShowOptions] = useState({
     id: "",
     isShow: false,
@@ -173,19 +174,25 @@ const MusicPlayer = () => {
     }
 
     cdRef.current.style.width = "12.5rem";
+    cdRef.current.style.height = "12.5rem";
+    cdRef.current.style.opacity = 1;
+    window.scrollTo(0, 0);
     const cdWidth = cdRef.current?.offsetWidth;
     dashboardHeight = dashboardRef?.current?.offsetHeight;
-    playlistRef.current.style.marginTop = dashboardHeight + "px";
+    playlistRef.current.style.marginTop = dashboardHeight+"px";
     document.onscroll = function () {
-      dashboardHeight = dashboardRef?.current?.offsetHeight;
-      playlistRef.current.style.marginTop = dashboardHeight + "px";
-      const scrollToTop = window.scrollY || document.documentElement.scrollTop;
-      const newCdWidth = cdWidth - scrollToTop;
-      if (cdRef.current) {
-        cdRef.current.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
-        cdRef.current.style.height = newCdWidth > 0 ? newCdWidth + "px" : 0;
-        cdRef.current.style.opacity = newCdWidth / cdWidth;
-      }
+      // if (!isScrollToActiveSong) {
+        dashboardHeight = dashboardRef?.current?.offsetHeight;
+        playlistRef.current.style.marginTop = dashboardHeight+"px";
+        const scrollToTop =
+          window.scrollY || document.documentElement.scrollTop;
+        const newCdWidth = cdWidth - scrollToTop;
+        if (cdRef.current) {
+          cdRef.current.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
+          cdRef.current.style.height = newCdWidth > 0 ? newCdWidth + "px" : 0;
+          cdRef.current.style.opacity = newCdWidth / cdWidth;
+        }
+      // }
     };
 
     if (!isRandom && !config.isRandom) {
@@ -199,6 +206,7 @@ const MusicPlayer = () => {
     config.isRandom,
     config.isRepeat,
     currentId,
+    // isScrollToActiveSong,
   ]);
   const handleTogglePlay = () => {
     if (!isPlaying) {
@@ -215,19 +223,24 @@ const MusicPlayer = () => {
   const handleAudioOnPause = () => {
     setIsPlaying(false);
   };
-
+  const setCurrentSongPlay = (song) => {
+    // const currSong= songs.find((item)=>item.id===song.id)
+    // const indexCurrSong= songs.indexOf(currSong)
+    // songs.splice(indexCurrSong, 1)
+    // songs.unshift(currSong)
+    setCurrentSong(song);
+    setCurrentId(song.id)
+  };
   const handleRandomSong = () => {
     let newIndex;
     if (playedSongs.length > 0) {
       newIndex = Math.floor(Math.random() * playedSongs.length);
-      setCurrentSong({ ...playedSongs[newIndex] });
-      setCurrentId(playedSongs[newIndex]?.id);
+      setCurrentSongPlay({ ...playedSongs[newIndex] });
       playedSongs.splice(newIndex, 1);
       setPlayedSongs([...playedSongs]);
     } else {
       newIndex = 0;
-      setCurrentSong({ ...songs[newIndex] });
-      setCurrentId(songs[newIndex]?.id);
+      setCurrentSongPlay({ ...songs[newIndex] });
       setPlayedSongs([...songs]);
     }
   };
@@ -243,10 +256,9 @@ const MusicPlayer = () => {
       if (currentIndex < 0) {
         currentIndex = songs.length - 1;
       }
-      setCurrentSong({ ...songs[currentIndex] });
-      setCurrentId(songs[currentIndex].id);
+      setCurrentSongPlay({ ...songs[currentIndex] });
     }
-    scrollToActiveSong();
+    // scrollToActiveSong();
     audioRef.current.currentTime = 0;
     setIsPlaying(true);
   };
@@ -262,10 +274,9 @@ const MusicPlayer = () => {
       if (currentIndex > songs.length - 1) {
         currentIndex = 0;
       }
-      setCurrentSong({ ...songs[currentIndex] });
-      setCurrentId(songs[currentIndex].id);
+      setCurrentSongPlay({ ...songs[currentIndex] });
     }
-    scrollToActiveSong();
+    // scrollToActiveSong();
     audioRef.current.currentTime = 0;
     setIsPlaying(true);
   };
@@ -322,30 +333,35 @@ const MusicPlayer = () => {
         }
       }
     }
-    scrollToActiveSong();
+    // scrollToActiveSong();
   };
 
-  const scrollToActiveSong = () => {
-    let ScrollActiveTimeOut;
-    clearTimeout(ScrollActiveTimeOut);
-    ScrollActiveTimeOut = setTimeout(() => {
-      $(".song-item.active").scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-        inline: "nearest",
-      });
-    }, 300);
-  };
+  // const scrollToActiveSong = () => {
+  //   setIsScrollToActiveSong(true);
+  //   let ScrollActiveTimeOut;
+  //   clearTimeout(ScrollActiveTimeOut);
+  //   ScrollActiveTimeOut = setTimeout(() => {
+  //     $(".song-item.active").scrollIntoView({
+  //       behavior: "smooth",
+  //       block: "end",
+  //       inline: "nearest",
+  //     });
+  //     setIsScrollToActiveSong(false);
+  //   }, 300);
+  // };
   const handleClickSongItem = (e) => {
     setShowOptions({ id: "", isShow: false });
     const songNode = e.target.closest(".song-item:not(.active)");
-    if (songNode && !e.target.closest(".option")&&!e.target.closest(".modal-item-wrapper")) {
+    if (
+      songNode &&
+      !e.target.closest(".option") &&
+      !e.target.closest(".modal-item-wrapper")
+    ) {
       songNode.classList.add("active");
-      setCurrentId(songNode.dataset.id);
       const song = songs.find((song) => song.id === songNode.dataset.id);
-      setCurrentSong({ ...song });
+      setCurrentSongPlay({ ...song });
       setIsPlaying(true);
-      scrollToActiveSong();
+      // scrollToActiveSong();
     }
     //làm redux ở đây, check điều kiện set biến redux, cuối cùng thì dựa trên biến redux mà gọi mấy hàm play, setcurr
   };
@@ -354,37 +370,35 @@ const MusicPlayer = () => {
     setIsShowAddSongModal(true);
   };
 
-  const handleRepeat=({isForceRepeat=false, song=null})=>{
-	if(!isForceRepeat){
-		setConfig("isRepeat", !isRepeat);
-		setIsRepeat((prev) => !prev);
-	}else {
-		setConfig("isRepeat", true);
-		setIsRepeat(true);
-		handleRunSongNow(song)
-	}
-  }
+  const handleRepeat = ({ isForceRepeat = false, song = null }) => {
+    if (!isForceRepeat) {
+      setConfig("isRepeat", !isRepeat);
+      setIsRepeat((prev) => !prev);
+    } else {
+      setConfig("isRepeat", true);
+      setIsRepeat(true);
+      handleRunSongNow(song);
+    }
+  };
   const handleRunSongNow = (song) => {
     setShowOptions({ id: "", isShow: false });
-    setCurrentId(song.id);
-    setCurrentSong({ ...song });
+    setCurrentSongPlay({ ...song });
     setIsPlaying(true);
-    scrollToActiveSong();
+    // scrollToActiveSong();
   };
-  const handleRemoveSong =(idSong)=>{
-	//sắp tới nếu thêm xong phương thức thêm bài thì khi xóa hết bài sẽ hiển thị một cái div là hsết baài(arr.length===0 thì render div kia, ngượjc ailj show div)
-	const songsClone=[...songs]
-	if(songsClone.length){
-		const songFound= songsClone.find((song)=>song.id===idSong)
-		const indexSongFound= songsClone.indexOf(songFound)
-		songsClone.splice(indexSongFound, 1)
-		setSongs([...songsClone])
-		setPlayedSongs([...songsClone])
-		setCurrentSong(songsClone[0])
-		setCurrentId(songsClone[0].id);
-		setIsPlaying(true);
-	}
-  }
+  const handleRemoveSong = (idSong) => {
+    //sắp tới nếu thêm xong phương thức thêm bài thì khi xóa hết bài sẽ hiển thị một cái div là hsết baài(arr.length===0 thì render div kia, ngượjc ailj show div)
+    const songsClone = [...songs];
+    if (songsClone.length) {
+      const songFound = songsClone.find((song) => song.id === idSong);
+      const indexSongFound = songsClone.indexOf(songFound);
+      songsClone.splice(indexSongFound, 1);
+      setSongs([...songsClone]);
+      setPlayedSongs([...songsClone]);
+      setCurrentSongPlay(songsClone[0]);
+      setIsPlaying(true);
+    }
+  };
 
   return (
     <>
@@ -415,7 +429,7 @@ const MusicPlayer = () => {
           <div className="control flex justify-around items-center mt-6 text-gray-600">
             <div
               onClick={() => {
-                handleRepeat({})
+                handleRepeat({});
               }}
             >
               <RollbackOutlined
@@ -547,13 +561,9 @@ const MusicPlayer = () => {
           isPlaying={isPlaying}
           showOptions={showOptions}
           setShowOptions={setShowOptions}
-		  scrollToActiveSong={scrollToActiveSong}
-		  setIsPlaying={setIsPlaying}
-		  setCurrentSong={setCurrentSong}
-		  setCurrentId={setCurrentId}
-		  handleRepeat={handleRepeat}
-		  handleRunSongNow={handleRunSongNow}
-		  handleRemoveSong={handleRemoveSong}
+          handleRepeat={handleRepeat}
+          handleRunSongNow={handleRunSongNow}
+          handleRemoveSong={handleRemoveSong}
         />
       </div>
       <AddSongModal
