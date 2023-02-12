@@ -129,7 +129,6 @@
 
 .playlist {
   width: 480px;
-  overflow: hidden;
   .no-song-item {
     color: #d5176b;
     font-weight: bold;
@@ -148,7 +147,6 @@
 }
 
 .song-name {
-  color: #fff;
   text-shadow: 0 0 5px #fff, 0 0 10px #fff;
   letter-spacing: 4px;
 }
@@ -158,6 +156,7 @@
   height: 12.5rem;
   margin: auto;
   position: relative;
+  transition: .3s;
 }
 
 .cd,
@@ -391,7 +390,6 @@
   top: -6px;
   right: -80px;
   background: rgba(10, 25, 46, 0.8);
-  overflow: scroll;
   z-index: 10;
   overflow: hidden;
   ul {

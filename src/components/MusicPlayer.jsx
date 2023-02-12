@@ -1,11 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import RenderSongs from "./SideComponents/RenderSongs";
 import { download } from "../imagesAfter/index";
 import { SpeakerIcon } from "../icons/index";
 import AddSongModal from "./SideComponents/modals/AddSongModal";
 import Clock from "./SideComponents/Clock";
+import Tooltip from "./tooltip/Tooltip";
+import Intro from "./intro/Intro";
 import {
   HoangDontSay,
   AviciiWaitingForLove,
@@ -24,13 +26,18 @@ import {
   PauseCircleFilled,
   AppstoreAddOutlined,
 } from "@ant-design/icons";
-import { useEffect, useRef } from "react";
 import { Progress } from "antd";
-let dashboardHeight;
-const $ = document.querySelector.bind(document);
+// const $ = document.querySelector.bind(document);
 const PlAYER_STORAGE_KEY = "playerStorage";
+
+export const MusicLoader = async () => {
+  const res = await fetch(
+    "https://my-json-server.typicode.com/typicode/demo/db"
+  );
+  const data = await res.json();
+  return data;
+};
 const MusicPlayer = () => {
-  // eslint-disable-next-line no-unused-vars
   const [songs, setSongs] = useState([
     {
       id: "song001",
@@ -158,32 +165,29 @@ const MusicPlayer = () => {
   };
 
   useEffect(() => {
-    setIsRandom(config?.isRandom ? config.isRandom : isRandom);
-    setIsRepeat(config?.isRepeat ? config.isRepeat : isRepeat);
-    setCurrentVolume(
-      config?.currentVolume ? config.currentVolume : currentVolume
-    );
-    audioRef.current.volume = Number(currentVolume / 100).toFixed(2);
-    if (cdThumbRef.current?.classList) {
-      if (isPlaying) {
-        audioRef.current.play();
-        cdThumbRef.current.classList.add("active");
-      } else {
-        cdThumbRef.current.classList.remove("active");
+      setIsRandom(config?.isRandom ? config.isRandom : isRandom);
+      setIsRepeat(config?.isRepeat ? config.isRepeat : isRepeat);
+      setCurrentVolume(
+        config?.currentVolume ? config.currentVolume : currentVolume
+      );
+        audioRef.current.volume = Number(currentVolume / 100).toFixed(2);
+      if (cdThumbRef.current?.classList) {
+        if (isPlaying) {
+          audioRef.current.play();
+          cdThumbRef.current.classList.add("active");
+        } else {
+          cdThumbRef.current.classList.remove("active");
+        }
       }
-    }
 
-    cdRef.current.style.width = "12.5rem";
-    cdRef.current.style.height = "12.5rem";
-    cdRef.current.style.opacity = 1;
-    window.scrollTo(0, 0);
-    const cdWidth = cdRef.current?.offsetWidth;
-    dashboardHeight = dashboardRef?.current?.offsetHeight;
-    playlistRef.current.style.marginTop = dashboardHeight+"px";
-    document.onscroll = function () {
-      // if (!isScrollToActiveSong) {
-        dashboardHeight = dashboardRef?.current?.offsetHeight;
-        playlistRef.current.style.marginTop = dashboardHeight+"px";
+      cdRef.current.style.width = "12.5rem";
+      cdRef.current.style.height = "12.5rem";
+      cdRef.current.style.opacity = 1;
+      // window.scrollTo(0, 0);
+      const cdWidth = 200;
+      playlistRef.current.style.marginTop = "510px";
+      const scrollCallback = () => {
+        // if (!isScrollToActiveSong) {
         const scrollToTop =
           window.scrollY || document.documentElement.scrollTop;
         const newCdWidth = cdWidth - scrollToTop;
@@ -192,12 +196,14 @@ const MusicPlayer = () => {
           cdRef.current.style.height = newCdWidth > 0 ? newCdWidth + "px" : 0;
           cdRef.current.style.opacity = newCdWidth / cdWidth;
         }
-      // }
-    };
+        // }
+      };
+      document.removeEventListener("scroll", scrollCallback);
+      document.addEventListener("scroll", scrollCallback);
 
-    if (!isRandom && !config.isRandom) {
-      setPlayedSongs([]);
-    }
+      if (!isRandom && !config.isRandom) {
+        setPlayedSongs([]);
+      }
   }, [
     isPlaying,
     isRepeat,
@@ -229,7 +235,7 @@ const MusicPlayer = () => {
     // songs.splice(indexCurrSong, 1)
     // songs.unshift(currSong)
     setCurrentSong(song);
-    setCurrentId(song.id)
+    setCurrentId(song.id);
   };
   const handleRandomSong = () => {
     let newIndex;
@@ -399,24 +405,31 @@ const MusicPlayer = () => {
       setIsPlaying(true);
     }
   };
-
   return (
     <>
+    <Intro/>
       <div
         className={clsx(
           "player relative mx-auto bg-gray-200",
           isPlaying && "playing"
         )}
-        style={{ maxWidth: "30rem", height: "500vh" }}
+        style={{ maxWidth: "30rem", minHeight: "100vh" }}
       >
         <div ref={dashboardRef} className="dashboard p-4 z-10">
           <header className="text-center relative">
             <div className="text-red-500 font-bold">Now playing</div>
-            <div className="text-3xl font-bold song-name line-clamp-2 whitespace-pre-line break-words">
-              {currentSong?.name
-                ? currentSong.name
-                : "no current song was choosed"}
-            </div>
+            <Tooltip
+              direction="bottom"
+              delay="200"
+              className="w-full"
+              content={`${currentSong?.name || "Failed to load song name."}`}
+            >
+              <div className="text-3xl font-bold p-2 overflow-hidden text-white song-name line-clamp-1 whitespace-nowrap text-ellipsis">
+                {currentSong?.name
+                  ? currentSong.name
+                  : "no current song was chose"}
+              </div>
+            </Tooltip>
           </header>
           <div ref={cdRef} className="cd mt-3">
             <img
@@ -494,7 +507,7 @@ const MusicPlayer = () => {
             />
             <Progress
               className="absolute right-0"
-              style={{ width: "100%", top: "2px" }}
+              style={{ width: "100%", top: "3px" }}
               percent={
                 currentPercent === 100
                   ? currentPercent
@@ -529,7 +542,7 @@ const MusicPlayer = () => {
               />
               <Progress
                 className="absolute right-0"
-                style={{ width: "84%", top: "4px" }}
+                style={{ width: "84%", top: "3px" }}
                 percent={currentVolume}
                 showInfo={false}
                 strokeColor="#f97316"
