@@ -473,12 +473,12 @@ a:focus-visible {
 body {
   font-family: 'Nunito', sans-serif;
   min-height: 100vh;
-  background-color: var(--BGCOLOR);
+  background-color: #000;
   color: var(--COLOR);
-  background-image: url('./img/background.jpg');
+  /* background-image: url('./img/background.jpg');
   background-size: cover;
   background-position: top right;
-  background-blend-mode: multiply;
+  background-blend-mode: multiply; */
 }
 
 input,
