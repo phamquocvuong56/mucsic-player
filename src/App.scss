@@ -1,5 +1,7 @@
 @import "antd/dist/antd.css";
-
+.custom-cursor {
+  cursor:url('./images/cursor.png') 100 100, auto;
+}
 .navigation {
   .title {
     visibility: hidden;
@@ -438,5 +440,43 @@
   }
   100% {
     opacity: 1;
+  }
+}
+.logo-icon-side-left {
+  top: 50%;
+  left: calc(50% - 500px);
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 8px #fff);
+  opacity: 0.6;
+}
+.logo-icon-side-right {
+  top: 50%;
+  left: calc(50% + 500px);
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 0 8px #fff);
+  opacity: 0.6;
+}
+.logo-icon-side-left:hover,
+.logo-icon-side-right:hover {
+  animation: appearContinuously .3s forwards linear
+}
+@keyframes appearContinuously {
+  0% {
+      opacity: 0.6;
+  }
+  20% {
+      opacity: 0.8;
+  }
+  40% {
+      opacity: 0.2;
+  }
+  60% {
+      opacity: 0.8;
+  }
+  80% {    
+      opacity: 0.4;
+  }
+  100% {
+      opacity: 1;
   }
 }

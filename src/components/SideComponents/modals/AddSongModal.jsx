@@ -1,16 +1,19 @@
 import { Modal } from 'antd';
 import React from 'react';
-
-const AddSongModal = ({ isShow, setIsShowAddSongModal }) => {
+import { setIsShowAddSongModal } from "../../../redux/song/SongSlice";
+import { useDispatch, useSelector } from "react-redux";
+const AddSongModal = () => {
+	const dispatch= useDispatch()
+	const {isShowAddSongModal} = useSelector((state)=>state.song)
 	return (
 		<Modal
-			open={isShow}
+			open={isShowAddSongModal}
 			title="Add song"
 			onCancel={() => {
-				setIsShowAddSongModal(false);
+				dispatch(setIsShowAddSongModal(false));
 			}}
 			onOk={() => {
-				setIsShowAddSongModal(false);
+				dispatch(setIsShowAddSongModal(false));
 			}}
 		>
 			{/* <Form form={form}></Form> */}

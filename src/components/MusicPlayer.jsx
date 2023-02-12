@@ -1,32 +1,40 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useRef, useEffect } from "react";
-import clsx from "clsx";
-import RenderSongs from "./SideComponents/RenderSongs";
-import { download } from "../imagesAfter/index";
-import { SpeakerIcon } from "../icons/index";
-import AddSongModal from "./SideComponents/modals/AddSongModal";
-import Clock from "./SideComponents/Clock";
-import Tooltip from "./tooltip/Tooltip";
-import Intro from "./intro/Intro";
 import {
-  HoangDontSay,
+  AppstoreAddOutlined,
+  PauseCircleFilled,
+  PlayCircleFilled,
+  RetweetOutlined,
+  RollbackOutlined,
+  StepBackwardOutlined,
+  StepForwardOutlined,
+} from "@ant-design/icons";
+import { Progress } from "antd";
+import clsx from "clsx";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { LogoIcon, SpeakerIcon } from "../icons/index";
+import { Image1 } from "../images";
+import { download } from "../imagesAfter/index";
+import {
   AviciiWaitingForLove,
-  WalkThruFire,
+  HoangDontSay,
   MidnightKidsFindOurWay,
   PayphonexCallMeMaybe,
   VicetoneNevada,
   Vuong,
+  WalkThruFire,
 } from "../musics";
+import Intro from "./intro/Intro";
+import Clock from "./SideComponents/Clock";
+import AddSongModal from "./SideComponents/modals/AddSongModal";
+import RenderSongs from "./SideComponents/RenderSongs";
+import Tooltip from "./tooltip/Tooltip";
 import {
-  RollbackOutlined,
-  StepBackwardOutlined,
-  StepForwardOutlined,
-  PlayCircleFilled,
-  RetweetOutlined,
-  PauseCircleFilled,
-  AppstoreAddOutlined,
-} from "@ant-design/icons";
-import { Progress } from "antd";
+  setRandom,
+  setRepeat,
+  setPlaying,
+} from "../redux/dashboard/DashboardSlice";
+import { setCurrentSong, setIsShowAddSongModal } from "../redux/song/SongSlice";
 // const $ = document.querySelector.bind(document);
 const PlAYER_STORAGE_KEY = "playerStorage";
 
@@ -38,13 +46,21 @@ export const MusicLoader = async () => {
   return data;
 };
 const MusicPlayer = () => {
+  const { isRandom, isPlaying, isRepeat } = useSelector(
+    (state) => state.dashboard
+  );
+  const { currentSong } = useSelector(
+    (state) => state.song
+  );
+  const dispatch = useDispatch();
+  //in the future, make redux api for songs
   const [songs, setSongs] = useState([
     {
       id: "song001",
       name: "HoangDontSay",
       singer: "Raftaar x Fortnite",
       path: HoangDontSay,
-      image: "https://i.ytimg.com/vi/jTLhQf5KJSc/maxresdefault.jpg",
+      image: Image1,
     },
     {
       id: "song002",
@@ -137,20 +153,14 @@ const MusicPlayer = () => {
       image: "https://bau.vn/wp-content/uploads/2021/09/nam-dj-1024x914.jpg",
     },
   ]);
-  const [currentSong, setCurrentSong] = useState(songs[0] || {});
-  const [currentId, setCurrentId] = useState(songs[0]?.id ? songs[0].id : "");
   const [currentVolume, setCurrentVolume] = useState(0);
   const [currentPercent, setCurrentPercent] = useState(0);
   const [playedSongs, setPlayedSongs] = useState([...songs]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isRandom, setIsRandom] = useState(false);
   // const [isScrollToActiveSong, setIsScrollToActiveSong] = useState(false);
   const [showOptions, setShowOptions] = useState({
     id: "",
     isShow: false,
   });
-  const [isShowAddSongModal, setIsShowAddSongModal] = useState(false);
   const cdRef = useRef();
   const audioRef = useRef();
   const dashboardRef = useRef();
@@ -165,53 +175,51 @@ const MusicPlayer = () => {
   };
 
   useEffect(() => {
-      setIsRandom(config?.isRandom ? config.isRandom : isRandom);
-      setIsRepeat(config?.isRepeat ? config.isRepeat : isRepeat);
-      setCurrentVolume(
-        config?.currentVolume ? config.currentVolume : currentVolume
-      );
-        audioRef.current.volume = Number(currentVolume / 100).toFixed(2);
-      if (cdThumbRef.current?.classList) {
-        if (isPlaying) {
-          audioRef.current.play();
-          cdThumbRef.current.classList.add("active");
-        } else {
-          cdThumbRef.current.classList.remove("active");
-        }
+    dispatch(setCurrentSong(songs[0]));
+    dispatch(setRandom(config.isRandom));
+    dispatch(setRepeat(config.isRepeat));
+  }, []);
+  useEffect(() => {
+    setCurrentVolume(config.currentVolume);
+    audioRef.current.volume = Number(currentVolume / 100).toFixed(2);
+  }, [currentVolume]);
+  useEffect(() => {
+    if (!isRandom && !config.isRandom) {
+      setPlayedSongs([]);
+    }
+  }, [isRandom]);
+  useEffect(() => {
+    if (cdThumbRef.current?.classList) {
+      if (isPlaying) {
+        audioRef.current.play();
+        cdThumbRef.current.classList.add("active");
+      } else {
+        cdThumbRef.current.classList.remove("active");
       }
-
-      cdRef.current.style.width = "12.5rem";
-      cdRef.current.style.height = "12.5rem";
-      cdRef.current.style.opacity = 1;
-      // window.scrollTo(0, 0);
-      const cdWidth = 200;
-      playlistRef.current.style.marginTop = "510px";
-      const scrollCallback = () => {
-        // if (!isScrollToActiveSong) {
-        const scrollToTop =
-          window.scrollY || document.documentElement.scrollTop;
-        const newCdWidth = cdWidth - scrollToTop;
-        if (cdRef.current) {
-          cdRef.current.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
-          cdRef.current.style.height = newCdWidth > 0 ? newCdWidth + "px" : 0;
-          cdRef.current.style.opacity = newCdWidth / cdWidth;
-        }
-        // }
-      };
-      document.removeEventListener("scroll", scrollCallback);
-      document.addEventListener("scroll", scrollCallback);
-
-      if (!isRandom && !config.isRandom) {
-        setPlayedSongs([]);
+    }
+    cdRef.current.style.width = "12.5rem";
+    cdRef.current.style.height = "12.5rem";
+    cdRef.current.style.opacity = 1;
+    // window.scrollTo(0, 0);
+    const cdWidth = 200;
+    playlistRef.current.style.marginTop = "510px";
+    const scrollCallback = () => {
+      // if (!isScrollToActiveSong) {
+      const scrollToTop = window.scrollY || document.documentElement.scrollTop;
+      const newCdWidth = cdWidth - scrollToTop;
+      if (cdRef.current) {
+        cdRef.current.style.width = newCdWidth > 0 ? newCdWidth + "px" : 0;
+        cdRef.current.style.height = newCdWidth > 0 ? newCdWidth + "px" : 0;
+        cdRef.current.style.opacity = newCdWidth / cdWidth;
       }
+      // }
+    };
+    document.removeEventListener("scroll", scrollCallback);
+    document.addEventListener("scroll", scrollCallback);
   }, [
     isPlaying,
-    isRepeat,
-    isRandom,
     songs,
-    config.isRandom,
-    config.isRepeat,
-    currentId,
+    currentSong.id,
     // isScrollToActiveSong,
   ]);
   const handleTogglePlay = () => {
@@ -223,19 +231,18 @@ const MusicPlayer = () => {
   };
 
   const handleAudioOnPlay = () => {
-    setIsPlaying(true);
+    dispatch(setPlaying(true));
   };
 
   const handleAudioOnPause = () => {
-    setIsPlaying(false);
+    dispatch(setPlaying(false));
   };
   const setCurrentSongPlay = (song) => {
     // const currSong= songs.find((item)=>item.id===song.id)
     // const indexCurrSong= songs.indexOf(currSong)
     // songs.splice(indexCurrSong, 1)
     // songs.unshift(currSong)
-    setCurrentSong(song);
-    setCurrentId(song.id);
+    dispatch(setCurrentSong(song));
   };
   const handleRandomSong = () => {
     let newIndex;
@@ -252,11 +259,11 @@ const MusicPlayer = () => {
   };
 
   const handlePrev = () => {
-    if (isRandom || config.isRandom) {
+    if (isRandom) {
       handleRandomSong();
     } else {
       let currentIndex = songs.indexOf(
-        songs.find((song) => song.id === currentId)
+        songs.find((song) => song.id === currentSong.id)
       );
       currentIndex--;
       if (currentIndex < 0) {
@@ -266,15 +273,15 @@ const MusicPlayer = () => {
     }
     // scrollToActiveSong();
     audioRef.current.currentTime = 0;
-    setIsPlaying(true);
+    dispatch(setPlaying(true));
   };
 
   const handleNext = () => {
-    if (isRandom || config.isRandom) {
+    if (isRandom) {
       handleRandomSong();
     } else {
       let currentIndex = songs.indexOf(
-        songs.find((song) => song.id === currentId)
+        songs.find((song) => song.id === currentSong.id)
       );
       currentIndex++;
       if (currentIndex > songs.length - 1) {
@@ -284,7 +291,7 @@ const MusicPlayer = () => {
     }
     // scrollToActiveSong();
     audioRef.current.currentTime = 0;
-    setIsPlaying(true);
+    dispatch(setPlaying(true));
   };
 
   const handleTime = (value) => {
@@ -321,15 +328,15 @@ const MusicPlayer = () => {
 
   const handleAudioEnded = () => {
     if (isRepeat) {
-      setIsPlaying(true);
+      dispatch(setPlaying(true));
     } else {
-      if (isRandom || config.isRandom) {
+      if (isRandom) {
         handleRandomSong();
         audioRef.current.currentTime = 0;
-        setIsPlaying(true);
+        dispatch(setPlaying(true));
       } else {
         let currentIndex = songs.indexOf(
-          songs.find((song) => song.id === currentId)
+          songs.find((song) => song.id === currentSong.id)
         );
         if (currentIndex === songs.length - 1) {
           audioRef.current.pause();
@@ -366,30 +373,36 @@ const MusicPlayer = () => {
       songNode.classList.add("active");
       const song = songs.find((song) => song.id === songNode.dataset.id);
       setCurrentSongPlay({ ...song });
-      setIsPlaying(true);
+      dispatch(setPlaying(true));
       // scrollToActiveSong();
     }
     //làm redux ở đây, check điều kiện set biến redux, cuối cùng thì dựa trên biến redux mà gọi mấy hàm play, setcurr
   };
 
   const handleAddSongs = () => {
-    setIsShowAddSongModal(true);
+    dispatch(setIsShowAddSongModal(true));
   };
 
   const handleRepeat = ({ isForceRepeat = false, song = null }) => {
     if (!isForceRepeat) {
       setConfig("isRepeat", !isRepeat);
-      setIsRepeat((prev) => !prev);
+      dispatch(setRepeat(!isRepeat));
+      if (!isRepeat) {
+        dispatch(setRandom(false));
+        setConfig("isRandom", false);
+      }
     } else {
       setConfig("isRepeat", true);
-      setIsRepeat(true);
+      dispatch(setRepeat(true));
+      dispatch(setRandom(false));
+      setConfig("isRandom", false);
       handleRunSongNow(song);
     }
   };
   const handleRunSongNow = (song) => {
     setShowOptions({ id: "", isShow: false });
     setCurrentSongPlay({ ...song });
-    setIsPlaying(true);
+    dispatch(setPlaying(true));
     // scrollToActiveSong();
   };
   const handleRemoveSong = (idSong) => {
@@ -402,15 +415,23 @@ const MusicPlayer = () => {
       setSongs([...songsClone]);
       setPlayedSongs([...songsClone]);
       setCurrentSongPlay(songsClone[0]);
-      setIsPlaying(true);
+      dispatch(setPlaying(true));
     }
   };
   return (
     <>
-    <Intro/>
+      <Intro />
+      <LogoIcon
+        className="logo-icon-side-left fixed"
+        style={{ fontSize: "150px", zIndex: 101 }}
+      />
+      <LogoIcon
+        className="logo-icon-side-right fixed"
+        style={{ fontSize: "150px", zIndex: 101 }}
+      />
       <div
         className={clsx(
-          "player relative mx-auto bg-gray-200",
+          "player relative mx-auto bg-gray-200 custom-cursor",
           isPlaying && "playing"
         )}
         style={{ maxWidth: "30rem", minHeight: "100vh" }}
@@ -425,9 +446,7 @@ const MusicPlayer = () => {
               content={`${currentSong?.name || "Failed to load song name."}`}
             >
               <div className="text-3xl font-bold p-2 overflow-hidden text-white song-name line-clamp-1 whitespace-nowrap text-ellipsis">
-                {currentSong?.name
-                  ? currentSong.name
-                  : "no current song was chose"}
+                {currentSong?.name ? currentSong.name : "no song was chose!"}
               </div>
             </Tooltip>
           </header>
@@ -448,7 +467,7 @@ const MusicPlayer = () => {
               <RollbackOutlined
                 className={clsx(
                   "btn btn-repeat cursor-pointer text-xl",
-                  (isRepeat || config?.isRepeat) && "active"
+                  isRepeat && "active"
                 )}
               />
             </div>
@@ -472,14 +491,18 @@ const MusicPlayer = () => {
             </div>
             <div
               onClick={() => {
-                setIsRandom((prev) => !prev);
+                dispatch(setRandom(!isRandom));
                 setConfig("isRandom", !isRandom);
+                if (!isRandom) {
+                  dispatch(setRepeat(false));
+                  setConfig("isRepeat", false);
+                }
               }}
             >
               <RetweetOutlined
                 className={clsx(
                   "btn btn-random cursor-pointer text-xl",
-                  (isRandom || config?.isRandom) && "active"
+                  isRandom && "active"
                 )}
               />
             </div>
@@ -567,7 +590,7 @@ const MusicPlayer = () => {
           </div>
         </div>
         <RenderSongs
-          currentId={currentId}
+          currentId={currentSong.id}
           songs={songs}
           handleClickSongItem={handleClickSongItem}
           playlistRef={playlistRef}
@@ -579,10 +602,7 @@ const MusicPlayer = () => {
           handleRemoveSong={handleRemoveSong}
         />
       </div>
-      <AddSongModal
-        isShow={isShowAddSongModal}
-        setIsShowAddSongModal={setIsShowAddSongModal}
-      />
+      <AddSongModal />
     </>
   );
 };

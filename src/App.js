@@ -12,7 +12,7 @@ const router= createBrowserRouter(
   createRoutesFromElements(
     // <Route path="/" element={<Home />} >
     <Route >
-      <Route path="music" loader={MusicLoader} element={<MusicPlayer />} />
+      <Route path="/" loader={MusicLoader} element={<MusicPlayer />} />
       <Route path="*" element={<NotFound />} />
     </Route>
   )
