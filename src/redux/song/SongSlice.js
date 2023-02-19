@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
     currentSong:{},
     isShowAddSongModal:false,
+    songs:[]
 }
 
 export const songSlice = createSlice({
@@ -15,10 +16,12 @@ export const songSlice = createSlice({
     setIsShowAddSongModal: (state, action)=>{
       state.isShowAddSongModal= action.payload
     },
+    setSong: (state, action)=>{
+      state.songs= JSON.parse(JSON.stringify(action.payload))
+    },
   },
 })
 
 // Action creators are generated for each case reducer function
-export const { setCurrentSong,setIsShowAddSongModal } = songSlice.actions
-
+export const { setCurrentSong,setIsShowAddSongModal, setSong } = songSlice.actions
 export default songSlice.reducer

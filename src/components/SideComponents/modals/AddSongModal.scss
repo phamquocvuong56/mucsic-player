@@ -1,0 +1,204 @@
+.modal-add-song {
+  animation: appearModal .6s forwards ease-in-out;
+  border-radius: 4px;
+  width: 300px;
+  min-height: 300px;
+  height: fit-content;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  padding: 12px;
+  background: #bde0fe;
+  .close-btn {
+    transform: rotate(-20deg);
+    transition: 0.3s;
+    position: absolute;
+    right: 0;
+    top: -40px;
+    right: 10px;
+    padding: 8px;
+    height: 100px;
+    display: flex;
+    align-items: flex-end;
+    cursor: pointer;
+    svg {
+      filter: drop-shadow(0 0 20px #fff);
+    }
+    &:hover {
+      animation: shaking infinite 2s ease-in-out;
+    }
+  }
+  .form {
+    margin-top: 40px;
+    flex-flow: unset;
+    flex-wrap: wrap;
+  }
+  .form-control,
+  .form-item {
+    position: relative;
+  }
+  .form-item:nth-child(1) {
+    width: 48%;
+  }
+  .form-error {
+    font-size: 10px;
+    color: red;
+    letter-spacing: 1px;
+    position: absolute;
+    transition: 0.3s;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    display: none;
+  }
+  .form-error.display {
+    opacity: 1;
+    transform: translate(0, 15px);
+    display: block;
+  }
+  input {
+    border: 1px solid #fff;
+    outline: none;
+    transition: 0.2s;
+    color: #000;
+    padding-left: 4px;
+    padding-right: 4px;
+    width: 100%;
+  }
+  label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: 0.3s;
+  }
+  button {
+    cursor: pointer;
+    background: #457b9d;
+    border: 1px solid #fff;
+    font-size: 16px;
+    transition: 0.3s;
+    &:hover {
+      letter-spacing: 4px;
+      text-shadow: 0 0 10px #fff, 0 0 20px #d6d6d6;
+    }
+  }
+  label:hover {
+    letter-spacing: 4px;
+  }
+  input:focus {
+    outline: 1px solid #457b9d;
+  }
+  #file {
+    position: absolute;
+    top: 0;
+    display: none;
+  }
+  .file-area {
+    cursor: pointer;
+    width: 100%;
+    height: 140px;
+    border: 1px dashed #457b9d;
+    overflow: hidden;
+    img {
+      width: 100%;
+      transition: 0.3s;
+      height: 100%;
+      object-fit: cover;
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
+  }
+  .avatar {
+    width: fit-content;
+    border: 1px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: 0.4s;
+    text-transform: uppercase;
+    &:hover {
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px #fff, 0 0 20px #d6d6d6;
+    }
+  }
+  .img-preview {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #fff;
+    margin-top: 12px;
+    overflow: hidden;
+  }
+  #avatar-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.3s;
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+  #name,
+  #author {
+    font-size: 12px;
+    color: #457b9d;
+    padding: 4px;
+  }
+  .file-preview {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, -4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .file-preview-avt {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .file-name {
+      font-size: 10px;
+      padding: 4px 0;
+      color: #457b9d;
+      margin-left: 4px;
+      width: 70px;
+      max-height: 40px;
+      line-height: 15px;
+    }
+  }
+}
+@keyframes shaking {
+  0%,
+  100% {
+    transform: rotate(-20deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+}
+@keyframes appearModal {
+  from {
+    opacity: 0;
+    transform: translate(-150px, -50px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-150px, -150px);
+  }
+}
+.bg-cover {
+  z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+}

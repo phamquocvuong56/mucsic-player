@@ -14,29 +14,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { LogoIcon, SpeakerIcon } from "../icons/index";
 import { Image1 } from "../images";
-import { download } from "../imagesAfter/index";
-import {
-  AviciiWaitingForLove,
-  HoangDontSay,
-  MidnightKidsFindOurWay,
-  PayphonexCallMeMaybe,
-  VicetoneNevada,
-  Vuong,
-  WalkThruFire,
-} from "../musics";
 import Intro from "./intro/Intro";
 import Clock from "./SideComponents/Clock";
 import AddSongModal from "./SideComponents/modals/AddSongModal";
 import RenderSongs from "./SideComponents/RenderSongs";
 import Tooltip from "./tooltip/Tooltip";
+import {SetConfig,GetConfig} from "../localStorage/LocalConfig";
+import {PlAYER_STORAGE_KEY} from '../localStorage/LocalKeys'
 import {
   setRandom,
   setRepeat,
   setPlaying,
 } from "../redux/dashboard/DashboardSlice";
-import { setCurrentSong, setIsShowAddSongModal } from "../redux/song/SongSlice";
+import { setCurrentSong, setIsShowAddSongModal,setSong } from "../redux/song/SongSlice";
 // const $ = document.querySelector.bind(document);
-const PlAYER_STORAGE_KEY = "playerStorage";
 
 export const MusicLoader = async () => {
   const res = await fetch(
@@ -49,110 +40,11 @@ const MusicPlayer = () => {
   const { isRandom, isPlaying, isRepeat } = useSelector(
     (state) => state.dashboard
   );
-  const { currentSong } = useSelector(
+  const { currentSong, songs } = useSelector(
     (state) => state.song
   );
   const dispatch = useDispatch();
   //in the future, make redux api for songs
-  const [songs, setSongs] = useState([
-    {
-      id: "song001",
-      name: "HoangDontSay",
-      singer: "Raftaar x Fortnite",
-      path: HoangDontSay,
-      image: Image1,
-    },
-    {
-      id: "song002",
-      name: "AviciiWaitingForLove",
-      singer: "Raftaar x Salim Merchant x Karma",
-      path: AviciiWaitingForLove,
-      image:
-        "https://1.bp.blogspot.com/-kX21dGUuTdM/X85ij1SBeEI/AAAAAAAAKK4/feboCtDKkls19cZw3glZWRdJ6J8alCm-gCNcBGAsYHQ/s16000/Tu%2BAana%2BPhir%2BSe%2BRap%2BSong%2BLyrics%2BBy%2BRaftaar.jpg",
-    },
-    {
-      id: "song003",
-      name: "WalkThruFire",
-      singer: "Raftaar x Brobha V",
-      path: WalkThruFire,
-      image: "https://i.ytimg.com/vi/QvswgfLDuPg/maxresdefault.jpg",
-    },
-    {
-      id: "song004",
-      name: "MidnightKidsFindOurWay",
-      singer: "Raftaar x Nawazuddin Siddiqui",
-      path: MidnightKidsFindOurWay,
-      image:
-        "https://a10.gaanacdn.com/images/song/39/24225939/crop_480x480_1536749130.jpg",
-    },
-    {
-      id: "song005",
-      name: "PayphonexCallMeMaybe",
-      singer: "Raftaar",
-      path: PayphonexCallMeMaybe,
-      image:
-        "https://a10.gaanacdn.com/images/albums/72/3019572/crop_480x480_3019572.jpg",
-    },
-    {
-      id: "song006",
-      name: "VicetoneNevada",
-      singer: "Raftaar x kr$na",
-      path: VicetoneNevada,
-      image: "https://bau.vn/wp-content/uploads/2021/09/nam-dj-1024x914.jpg",
-    },
-    {
-      id: "song007",
-      name: "HoangDontSay111",
-      singer: "Raftaar x Fortnite",
-      path: HoangDontSay,
-      image: "https://i.ytimg.com/vi/jTLhQf5KJSc/maxresdefault.jpg",
-    },
-    {
-      id: "song008",
-      name: "AviciiWaitingForLove111",
-      singer: "Raftaar x Salim Merchant x Karma",
-      path: AviciiWaitingForLove,
-      image:
-        "https://1.bp.blogspot.com/-kX21dGUuTdM/X85ij1SBeEI/AAAAAAAAKK4/feboCtDKkls19cZw3glZWRdJ6J8alCm-gCNcBGAsYHQ/s16000/Tu%2BAana%2BPhir%2BSe%2BRap%2BSong%2BLyrics%2BBy%2BRaftaar.jpg",
-    },
-    {
-      id: "song009",
-      name: "WalkThruFire111",
-      singer: "Raftaar x Brobha V",
-      path: WalkThruFire,
-      image: "https://i.ytimg.com/vi/QvswgfLDuPg/maxresdefault.jpg",
-    },
-    {
-      id: "song0010",
-      name: "MidnightKidsFindOurWay111",
-      singer: "Raftaar x Nawazuddin Siddiqui",
-      path: MidnightKidsFindOurWay,
-      image:
-        "https://a10.gaanacdn.com/images/song/39/24225939/crop_480x480_1536749130.jpg",
-    },
-    {
-      id: "song0011",
-      name: "PayphonexCallMeMaybe111",
-      singer: "Raftaar",
-      path: PayphonexCallMeMaybe,
-      image:
-        "https://a10.gaanacdn.com/images/albums/72/3019572/crop_480x480_3019572.jpg",
-    },
-    {
-      id: "song0012",
-      name: "VicetoneNevada111",
-      singer: "Raftaar x kr$na",
-      path: VicetoneNevada,
-      image: "https://bau.vn/wp-content/uploads/2021/09/nam-dj-1024x914.jpg",
-    },
-    {
-      id: "song0013",
-      name: "Vuong ngaos ddas",
-      singer: "Vuong",
-      path: Vuong,
-      image: "https://bau.vn/wp-content/uploads/2021/09/nam-dj-1024x914.jpg",
-    },
-  ]);
   const [currentVolume, setCurrentVolume] = useState(0);
   const [currentPercent, setCurrentPercent] = useState(0);
   const [playedSongs, setPlayedSongs] = useState([...songs]);
@@ -168,21 +60,18 @@ const MusicPlayer = () => {
   const cdThumbRef = useRef();
   const progressRef = useRef();
   const timeRef = useRef();
-  const config = JSON.parse(localStorage.getItem(PlAYER_STORAGE_KEY)) || {};
-  const setConfig = (key, value) => {
-    config[key] = value;
-    localStorage.setItem(PlAYER_STORAGE_KEY, JSON.stringify(config));
-  };
+  const config = GetConfig(PlAYER_STORAGE_KEY) || {};
 
   useEffect(() => {
-    dispatch(setCurrentSong(songs[0]));
+    dispatch(setCurrentSong(config.currentSong||songs[0]));
+    dispatch(setSong(config.songs||[]))
     dispatch(setRandom(config.isRandom));
     dispatch(setRepeat(config.isRepeat));
+    setCurrentVolume(config.currentVolume||0);
+    if(audioRef){
+      audioRef.current.volume = Number(config.currentVolume / 100).toFixed(2)>0?Number(config.currentVolume / 100).toFixed(2):1;
+    }
   }, []);
-  useEffect(() => {
-    setCurrentVolume(config.currentVolume);
-    audioRef.current.volume = Number(currentVolume / 100).toFixed(2);
-  }, [currentVolume]);
   useEffect(() => {
     if (!isRandom && !config.isRandom) {
       setPlayedSongs([]);
@@ -219,7 +108,7 @@ const MusicPlayer = () => {
   }, [
     isPlaying,
     songs,
-    currentSong.id,
+    currentSong,
     // isScrollToActiveSong,
   ]);
   const handleTogglePlay = () => {
@@ -238,11 +127,8 @@ const MusicPlayer = () => {
     dispatch(setPlaying(false));
   };
   const setCurrentSongPlay = (song) => {
-    // const currSong= songs.find((item)=>item.id===song.id)
-    // const indexCurrSong= songs.indexOf(currSong)
-    // songs.splice(indexCurrSong, 1)
-    // songs.unshift(currSong)
     dispatch(setCurrentSong(song));
+    SetConfig(PlAYER_STORAGE_KEY,'currentSong', song)
   };
   const handleRandomSong = () => {
     let newIndex;
@@ -321,7 +207,7 @@ const MusicPlayer = () => {
   };
 
   const onVolumeChange = (e) => {
-    setConfig("currentVolume", e.target.value);
+    SetConfig(PlAYER_STORAGE_KEY,"currentVolume", e.target.value);
     setCurrentVolume(e.target.value);
     audioRef.current.volume = Number(e.target.value / 100).toFixed(2);
   };
@@ -374,9 +260,9 @@ const MusicPlayer = () => {
       const song = songs.find((song) => song.id === songNode.dataset.id);
       setCurrentSongPlay({ ...song });
       dispatch(setPlaying(true));
+      console.log('is display', isPlaying)
       // scrollToActiveSong();
     }
-    //làm redux ở đây, check điều kiện set biến redux, cuối cùng thì dựa trên biến redux mà gọi mấy hàm play, setcurr
   };
 
   const handleAddSongs = () => {
@@ -385,17 +271,17 @@ const MusicPlayer = () => {
 
   const handleRepeat = ({ isForceRepeat = false, song = null }) => {
     if (!isForceRepeat) {
-      setConfig("isRepeat", !isRepeat);
+      SetConfig(PlAYER_STORAGE_KEY,"isRepeat", !isRepeat);
       dispatch(setRepeat(!isRepeat));
       if (!isRepeat) {
         dispatch(setRandom(false));
-        setConfig("isRandom", false);
+        SetConfig(PlAYER_STORAGE_KEY,"isRandom", false);
       }
     } else {
-      setConfig("isRepeat", true);
+      SetConfig(PlAYER_STORAGE_KEY,"isRepeat", true);
       dispatch(setRepeat(true));
       dispatch(setRandom(false));
-      setConfig("isRandom", false);
+      SetConfig(PlAYER_STORAGE_KEY,"isRandom", false);
       handleRunSongNow(song);
     }
   };
@@ -412,7 +298,7 @@ const MusicPlayer = () => {
       const songFound = songsClone.find((song) => song.id === idSong);
       const indexSongFound = songsClone.indexOf(songFound);
       songsClone.splice(indexSongFound, 1);
-      setSongs([...songsClone]);
+      dispatch(setSong([...songsClone]));
       setPlayedSongs([...songsClone]);
       setCurrentSongPlay(songsClone[0]);
       dispatch(setPlaying(true));
@@ -454,7 +340,7 @@ const MusicPlayer = () => {
             <img
               ref={cdThumbRef}
               className={clsx("object-cover w-full h-full cdThumb")}
-              src={currentSong?.image ? currentSong.image : download}
+              src={currentSong?.avt ? currentSong.avt : Image1}
               alt="card download item"
             />
           </div>
@@ -492,10 +378,10 @@ const MusicPlayer = () => {
             <div
               onClick={() => {
                 dispatch(setRandom(!isRandom));
-                setConfig("isRandom", !isRandom);
+              SetConfig(PlAYER_STORAGE_KEY,"isRandom", !isRandom);
                 if (!isRandom) {
                   dispatch(setRepeat(false));
-                  setConfig("isRepeat", false);
+                SetConfig(PlAYER_STORAGE_KEY,"isRepeat", false);
                 }
               }}
             >
@@ -580,7 +466,7 @@ const MusicPlayer = () => {
             onEnded={handleAudioEnded}
             ref={audioRef}
             className="audio"
-            src={currentSong?.path || ""}
+            src={currentSong?.url || ""}
           />
           <div
             className="add-songs cursor-pointer mt-4"
@@ -590,7 +476,7 @@ const MusicPlayer = () => {
           </div>
         </div>
         <RenderSongs
-          currentId={currentSong.id}
+          currentId={currentSong?.id}
           songs={songs}
           handleClickSongItem={handleClickSongItem}
           playlistRef={playlistRef}
