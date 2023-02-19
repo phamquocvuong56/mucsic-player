@@ -2,6 +2,7 @@ import React from "react";
 import { clsx } from "clsx";
 import ModalClickItem from "./ModalClickItem";
 import {DotIcon} from '../../icons/index'
+import {Image1} from '../../images/index'
 const RenderSongs = ({
   songs,
   handleClickSongItem,
@@ -32,7 +33,7 @@ const RenderSongs = ({
           >
             <div className="flex space-x-4 items-center">
               <img
-                src={song.image}
+                src={song.avt||Image1}
                 alt=""
                 className={clsx(
                   "object-cover w-full rounded-full avt-img",
@@ -45,7 +46,7 @@ const RenderSongs = ({
               />
               <div className="flex flex-col justify-center">
                 <h3 className="mb-0 font-bold">{song.name}</h3>
-                <p className="mb-0 text-sm song-sub-title">{song.singer}</p>
+                <p className="mb-0 text-sm song-sub-title">{song.author}</p>
               </div>
             </div>
             <div

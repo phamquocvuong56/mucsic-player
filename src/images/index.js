@@ -1,2 +1,3 @@
 import Image1 from './image1.png'
-export {Image1}
+import uploadImage from './uploadFile.png'
+export {Image1,uploadImage}
