@@ -4,6 +4,7 @@ const ModalClickItem = ({
   handleRunSongNow,
   handleRepeat,
   handleRemoveSong,
+  handleDownloadSong
 }) => {
   return (
     <div className="modal-item-wrapper">
@@ -16,6 +17,7 @@ const ModalClickItem = ({
           Play
         </li>
         <li onClick={handleRepeat}>Repeat</li>
+        <li onClick={handleDownloadSong}>Download</li>
         <li onClick={handleRemoveSong}>Remove</li>
       </ul>
     </div>
