@@ -1,5 +1,12 @@
 const GetConfig=(storageKey)=>{
-    return JSON.parse(localStorage.getItem(storageKey))
+    return JSON.parse(localStorage.getItem(storageKey))|| {
+      isPlaying:false,
+      isRandom:false,
+      songs:[],
+      isRepeat:false,
+      currentSong:{},
+      currentVolume:0
+    }
 }
 const SetConfig = (storageKey, key, value) => {
   const config = GetConfig(storageKey);

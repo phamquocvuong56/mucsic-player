@@ -395,7 +395,7 @@
   border-radius: 4px;
   box-shadow: 0 0 10px #000;
   position: absolute;
-  top: -6px;
+  top: -16px;
   right: -80px;
   background: rgba(10, 25, 46, 0.8);
   z-index: 10;
@@ -426,10 +426,10 @@
         0 0 10px rgb(88, 88, 88);
         letter-spacing: 4px;
     }
-    li:nth-child(2) {
+    li:nth-child(3) {
       height: 30px;
     }
-    li:nth-child(2)::before {
+    li:nth-child(3)::before {
       content: "";
       height: 1px;
       width: 150%;

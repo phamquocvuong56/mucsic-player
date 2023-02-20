@@ -60,11 +60,11 @@ const MusicPlayer = () => {
   const cdThumbRef = useRef();
   const progressRef = useRef();
   const timeRef = useRef();
-  const config = GetConfig(PlAYER_STORAGE_KEY) || {};
+  const config = GetConfig(PlAYER_STORAGE_KEY);
 
   useEffect(() => {
     dispatch(setCurrentSong(config.currentSong||songs[0]));
-    dispatch(setSong(config.songs||[]))
+    dispatch(setSong(config?.songs?[...config.songs]:[]))
     dispatch(setRandom(config.isRandom));
     dispatch(setRepeat(config.isRepeat));
     setCurrentVolume(config.currentVolume||0);
@@ -77,9 +77,13 @@ const MusicPlayer = () => {
       setPlayedSongs([]);
     }
   }, [isRandom]);
+
   useEffect(() => {
+    if(songs.length===0){
+      dispatch(setPlaying(false))
+    }
     if (cdThumbRef.current?.classList) {
-      if (isPlaying) {
+      if (isPlaying&&songs.length>0) {
         audioRef.current.play();
         cdThumbRef.current.classList.add("active");
       } else {
@@ -112,10 +116,12 @@ const MusicPlayer = () => {
     // isScrollToActiveSong,
   ]);
   const handleTogglePlay = () => {
-    if (!isPlaying) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
+    if(songs.length){
+      if (!isPlaying) {
+        audioRef.current.play();
+      } else {
+        audioRef.current.pause();
+      }
     }
   };
 
@@ -203,7 +209,9 @@ const MusicPlayer = () => {
 
   const onProgressChange = (e) => {
     const seekTime = (audioRef.current.duration / 100) * e.target.value;
-    audioRef.current.currentTime = seekTime;
+    if(seekTime){
+      audioRef.current.currentTime = seekTime;
+    }
   };
 
   const onVolumeChange = (e) => {
@@ -260,7 +268,6 @@ const MusicPlayer = () => {
       const song = songs.find((song) => song.id === songNode.dataset.id);
       setCurrentSongPlay({ ...song });
       dispatch(setPlaying(true));
-      console.log('is display', isPlaying)
       // scrollToActiveSong();
     }
   };
@@ -291,6 +298,18 @@ const MusicPlayer = () => {
     dispatch(setPlaying(true));
     // scrollToActiveSong();
   };
+  const handleDownloadSong= async(songUrl)=>{
+    await fetch(songUrl).then(res=>res.blob()).then(file=>{
+      let tempUrl= URL.createObjectURL(file)
+      let aTag= document.createElement('a');
+      aTag.href=tempUrl;
+      aTag.download= songUrl.replace(/^.*[\\/]/, '')
+      document.body.appendChild(aTag);
+      aTag.click();
+      aTag.remove();
+      URL.revokeObjectURL(tempUrl);
+    })
+  }
   const handleRemoveSong = (idSong) => {
     //sắp tới nếu thêm xong phương thức thêm bài thì khi xóa hết bài sẽ hiển thị một cái div là hsết baài(arr.length===0 thì render div kia, ngượjc ailj show div)
     const songsClone = [...songs];
@@ -299,9 +318,12 @@ const MusicPlayer = () => {
       const indexSongFound = songsClone.indexOf(songFound);
       songsClone.splice(indexSongFound, 1);
       dispatch(setSong([...songsClone]));
+      SetConfig(PlAYER_STORAGE_KEY, 'songs', [...songsClone])
       setPlayedSongs([...songsClone]);
-      setCurrentSongPlay(songsClone[0]);
-      dispatch(setPlaying(true));
+      if(songsClone.length){
+        setCurrentSongPlay(songsClone[0]);
+        dispatch(setPlaying(true));
+      }
     }
   };
   return (
@@ -486,6 +508,7 @@ const MusicPlayer = () => {
           handleRepeat={handleRepeat}
           handleRunSongNow={handleRunSongNow}
           handleRemoveSong={handleRemoveSong}
+          handleDownloadSong={handleDownloadSong}
         />
       </div>
       <AddSongModal />

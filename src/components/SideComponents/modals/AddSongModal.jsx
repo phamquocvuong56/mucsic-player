@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
 import { setIsShowAddSongModal, setSong } from "../../../redux/song/SongSlice";
+import { setModal } from "../../../redux/modal/ModalSlice";
 import { useDispatch, useSelector } from "react-redux";
 import "./AddSongModal.scss";
 import { uploadImage, Image1 } from "../../../images/index";
 import { CloseIcon } from "../../../icons/index";
 import axios from "axios";
-import { Loading } from "../../../components/index";
+import { Loading, InforModal } from "../../../components/index";
 import {SetConfig} from "../../../localStorage/LocalConfig";
 import {PlAYER_STORAGE_KEY} from '../../../localStorage/LocalKeys'
 const AddSongModal = () => {
@@ -22,6 +23,7 @@ const AddSongModal = () => {
   const authorErrRef = useRef();
   const dispatch = useDispatch();
   const { isShowAddSongModal, songs } = useSelector((state) => state.song);
+  const modalState = useSelector((state) => state.modal);
   const handleChooseFileClick = () => {
     if (fileRef) {
       fileRef.current.click();
@@ -34,13 +36,11 @@ const AddSongModal = () => {
   };
   const previewImgChange = () => {
     if (imgRef?.current?.files[0]) {
-      console.log('vao day')
       setImgUrl(URL.createObjectURL(imgRef?.current?.files[0]));
     }
   };
   const validateForm = () => {
     let check = true;
-    console.log("vao day: ", songNameRef.current.value);
     songNameErrRef.current.classList.remove("display");
     authorErrRef.current.classList.remove("display");
     if (songNameRef.current.value === "") {
@@ -93,15 +93,14 @@ const AddSongModal = () => {
         }
       );
       if (res?.data?.data?.length) {
-        console.log('res: ', res.data.message, res.data)
         const existSong= songs.some(item=>item.id===res.data.data[0].id)
-        console.log('exist song', existSong)
         if(existSong){
-          alert('this song has existed')
+          dispatch(setModal({isShow:true, title:'Existing song!',content:`file ${res.data.data[0].id}.mp3 has already exist!!!`}))
+          console.log('check:', modalState)
         }else {
+          dispatch(setModal({isShow:true, title:'Successful!',content:`File upload Successful !!!`}))
           dispatch(setSong([...songs, res.data.data[0]]))
-          SetConfig(PlAYER_STORAGE_KEY, songs, [...songs])
-          console.log('songs after set local', songs)
+          SetConfig(PlAYER_STORAGE_KEY, 'songs', [...songs, res.data.data[0]])
         }
       }
       setIsLoading(false);
@@ -117,6 +116,7 @@ const AddSongModal = () => {
     <>
       {isShowAddSongModal && (
         <>
+          {modalState.isShow&&<InforModal/>}
           {isLoading && <Loading />}
           <div className="bg-cover"></div>
           <div className="modal-add-song">

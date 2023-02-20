@@ -14,6 +14,7 @@ const RenderSongs = ({
   handleRepeat,
   handleRemoveSong,
   handleRunSongNow,
+  handleDownloadSong
 }) => {
   return (
     <div
@@ -69,6 +70,7 @@ const RenderSongs = ({
                   handleRunSongNow={() => handleRunSongNow(song)}
                   handleRepeat={()=>handleRepeat({isForceRepeat:true, song})}
                   handleRemoveSong={()=>handleRemoveSong(song.id)}
+                  handleDownloadSong={()=>handleDownloadSong(song.url)}
                 />
               )}
             </div>
