@@ -91,7 +91,7 @@ const AddSongModal = () => {
       formData.append("authorName", authorRef.current.value);
       setIsLoading(true);
       const res = await axios.post(
-        "http://localhost:3001/upload-songs",
+        `${process.env.REACT_APP_API_URL}upload-songs`,
         formData,
         {
           headers: {
