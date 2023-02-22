@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { setIsShowAddSongModal, setSong } from "../../../redux/song/SongSlice";
 import { setModal } from "../../../redux/modal/ModalSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,8 +7,8 @@ import { uploadImage, Image1 } from "../../../images/index";
 import { CloseIcon } from "../../../icons/index";
 import axios from "axios";
 import { Loading, InforModal } from "../../../components/index";
-import {SetConfig} from "../../../localStorage/LocalConfig";
-import {PlAYER_STORAGE_KEY} from '../../../localStorage/LocalKeys'
+import { SetConfig } from "../../../localStorage/LocalConfig";
+import { PlAYER_STORAGE_KEY } from "../../../localStorage/LocalKeys";
 const AddSongModal = () => {
   const [fileName, setFileName] = useState("");
   const [imgUrl, setImgUrl] = useState("");
@@ -24,6 +24,13 @@ const AddSongModal = () => {
   const dispatch = useDispatch();
   const { isShowAddSongModal, songs } = useSelector((state) => state.song);
   const modalState = useSelector((state) => state.modal);
+  useEffect(() => {
+    if(fileRef?.current){
+      fileRef.current.value = "";
+    }
+    setImgUrl("");
+    setFileName("");
+  }, [isShowAddSongModal]);
   const handleChooseFileClick = () => {
     if (fileRef) {
       fileRef.current.click();
@@ -92,23 +99,34 @@ const AddSongModal = () => {
           },
         }
       );
+      let dataPopup = {};
       if (res?.data?.data?.length) {
-        const existSong= songs.some(item=>item.id===res.data.data[0].id)
-        if(existSong){
-          dispatch(setModal({isShow:true, title:'Existing song!',content:`file ${res.data.data[0].id}.mp3 has already exist!!!`}))
-          console.log('check:', modalState)
-        }else {
-          dispatch(setModal({isShow:true, title:'Successful!',content:`File upload Successful !!!`}))
-          dispatch(setSong([...songs, res.data.data[0]]))
-          SetConfig(PlAYER_STORAGE_KEY, 'songs', [...songs, res.data.data[0]])
+        const existSong = songs.some((item) => item.id === res.data.data[0].id);
+        if (existSong) {
+          dataPopup.isShow = true;
+          dataPopup.title = "Existing song!";
+          dataPopup.content = `file ${res.data.data[0].id}.mp3 has already exist!!!`;
+        } else {
+          dataPopup.isShow = true;
+          dataPopup.title = "Successful!";
+          dataPopup.content = `File upload Successful !!!`;
+          dispatch(setSong([...songs, res.data.data[0]]));
+          SetConfig(PlAYER_STORAGE_KEY, "songs", [...songs, res.data.data[0]]);
+        }
+      } else {
+        if (res?.data?.status === "error") {
+          dataPopup.isShow = true;
+          dataPopup.title = "Error!";
+          dataPopup.content = res.data.message;
         }
       }
+      dispatch(setModal(dataPopup));
       setIsLoading(false);
 
       // const res= await songApi.uploadSong(formData)
-      fileRef.current.value='';
-      setImgUrl('')
-      setFileName('')
+      fileRef.current.value = "";
+      setImgUrl("");
+      setFileName("");
     }
     //upload file
   };
@@ -116,7 +134,7 @@ const AddSongModal = () => {
     <>
       {isShowAddSongModal && (
         <>
-          {modalState.isShow&&<InforModal/>}
+          {modalState.isShow && <InforModal />}
           {isLoading && <Loading />}
           <div className="bg-cover"></div>
           <div className="modal-add-song">
@@ -143,12 +161,12 @@ const AddSongModal = () => {
                     <div className="file-preview-avt">
                       <img
                         className="w-full h-full object-cover"
-                        src={imgUrl||Image1}
+                        src={imgUrl || Image1}
                         alt=""
                       />
                     </div>
                     <div className="file-name overflow-hidden line-clamp-2 break-words whitespace-pre-line text-ellipsis">
-                      {fileName|| "No song chose!"}
+                      {fileName || "No song chose!"}
                     </div>
                   </div>
                   <input
@@ -170,7 +188,7 @@ const AddSongModal = () => {
                       <img
                         ref={avatarRef}
                         id="avatar-preview"
-                        src={imgUrl||Image1}
+                        src={imgUrl || Image1}
                         alt="avatar preview"
                       />
                     </div>
