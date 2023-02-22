@@ -494,7 +494,8 @@ const MusicPlayer = () => {
             className="add-songs cursor-pointer mt-4"
             onClick={handleAddSongs}
           >
-            <AppstoreAddOutlined className="text-red-400 text-lg" />
+            <AppstoreAddOutlined className="text-red-400 text-lg" /> 
+            <div className="text">Add song</div>
           </div>
         </div>
         <RenderSongs

@@ -382,11 +382,18 @@
   z-index: 9;
 }
 .add-songs {
-  width: 30px;
+  width: 90px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
+  .text {
+    font-size: 14px;
+    margin-left: 4px;
+    height: 100%;
+    color: #f87171;
+    text-shadow: 0 0 10px #f87171;
+  }
 }
 .modal-item-wrapper {
   animation: appear .4s forwards;
