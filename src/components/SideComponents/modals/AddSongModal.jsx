@@ -127,6 +127,8 @@ const AddSongModal = () => {
       fileRef.current.value = "";
       setImgUrl("");
       setFileName("");
+      if(songNameRef?.current) songNameRef.current.value=''
+      if(authorRef?.current) authorRef.current.value=''
     }
     //upload file
   };
