@@ -319,7 +319,6 @@ const MusicPlayer = () => {
       });
   };
   const handleRemoveSong = (idSong) => {
-    //sắp tới nếu thêm xong phương thức thêm bài thì khi xóa hết bài sẽ hiển thị một cái div là hsết baài(arr.length===0 thì render div kia, ngượjc ailj show div)
     const songsClone = [...songs];
     if (songsClone.length) {
       const songFound = songsClone.find((song) => song.id === idSong);
@@ -331,6 +330,9 @@ const MusicPlayer = () => {
       if (songsClone.length) {
         setCurrentSongPlay(songsClone[0]);
         dispatch(setPlaying(true));
+      }else {
+        dispatch(setPlaying(false))
+        setCurrentSongPlay([]);
       }
     }
   };
