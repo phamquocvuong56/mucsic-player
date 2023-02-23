@@ -19,14 +19,18 @@ import Clock from "./SideComponents/Clock";
 import AddSongModal from "./SideComponents/modals/AddSongModal";
 import RenderSongs from "./SideComponents/RenderSongs";
 import Tooltip from "./tooltip/Tooltip";
-import {SetConfig,GetConfig} from "../localStorage/LocalConfig";
-import {PlAYER_STORAGE_KEY} from '../localStorage/LocalKeys'
+import { SetConfig, GetConfig } from "../localStorage/LocalConfig";
+import { PlAYER_STORAGE_KEY } from "../localStorage/LocalKeys";
 import {
   setRandom,
   setRepeat,
   setPlaying,
 } from "../redux/dashboard/DashboardSlice";
-import { setCurrentSong, setIsShowAddSongModal,setSong } from "../redux/song/SongSlice";
+import {
+  setCurrentSong,
+  setIsShowAddSongModal,
+  setSong,
+} from "../redux/song/SongSlice";
 // const $ = document.querySelector.bind(document);
 
 export const MusicLoader = async () => {
@@ -40,9 +44,7 @@ const MusicPlayer = () => {
   const { isRandom, isPlaying, isRepeat } = useSelector(
     (state) => state.dashboard
   );
-  const { currentSong, songs } = useSelector(
-    (state) => state.song
-  );
+  const { currentSong, songs } = useSelector((state) => state.song);
   const dispatch = useDispatch();
   //in the future, make redux api for songs
   const [currentVolume, setCurrentVolume] = useState(0);
@@ -63,13 +65,16 @@ const MusicPlayer = () => {
   const config = GetConfig(PlAYER_STORAGE_KEY);
 
   useEffect(() => {
-    dispatch(setCurrentSong(config.currentSong||songs[0]));
-    dispatch(setSong(config?.songs?[...config.songs]:[]))
+    dispatch(setCurrentSong(config.currentSong || songs[0]));
+    dispatch(setSong(config?.songs ? [...config.songs] : []));
     dispatch(setRandom(config.isRandom));
     dispatch(setRepeat(config.isRepeat));
-    setCurrentVolume(config.currentVolume||0);
-    if(audioRef){
-      audioRef.current.volume = Number(config.currentVolume / 100).toFixed(2)>0?Number(config.currentVolume / 100).toFixed(2):1;
+    setCurrentVolume(config.currentVolume || 0);
+    if (audioRef) {
+      audioRef.current.volume =
+        Number(config.currentVolume / 100).toFixed(2) > 0
+          ? Number(config.currentVolume / 100).toFixed(2)
+          : 1;
     }
   }, []);
   useEffect(() => {
@@ -79,11 +84,11 @@ const MusicPlayer = () => {
   }, [isRandom]);
 
   useEffect(() => {
-    if(songs.length===0){
-      dispatch(setPlaying(false))
+    if (songs.length === 0) {
+      dispatch(setPlaying(false));
     }
     if (cdThumbRef.current?.classList) {
-      if (isPlaying&&songs.length>0) {
+      if (isPlaying && songs.length > 0) {
         audioRef.current.play();
         cdThumbRef.current.classList.add("active");
       } else {
@@ -116,7 +121,7 @@ const MusicPlayer = () => {
     // isScrollToActiveSong,
   ]);
   const handleTogglePlay = () => {
-    if(songs.length){
+    if (songs.length) {
       if (!isPlaying) {
         audioRef.current.play();
       } else {
@@ -134,7 +139,7 @@ const MusicPlayer = () => {
   };
   const setCurrentSongPlay = (song) => {
     dispatch(setCurrentSong(song));
-    SetConfig(PlAYER_STORAGE_KEY,'currentSong', song)
+    SetConfig(PlAYER_STORAGE_KEY, "currentSong", song);
   };
   const handleRandomSong = () => {
     let newIndex;
@@ -209,13 +214,13 @@ const MusicPlayer = () => {
 
   const onProgressChange = (e) => {
     const seekTime = (audioRef.current.duration / 100) * e.target.value;
-    if(seekTime){
+    if (seekTime) {
       audioRef.current.currentTime = seekTime;
     }
   };
 
   const onVolumeChange = (e) => {
-    SetConfig(PlAYER_STORAGE_KEY,"currentVolume", e.target.value);
+    SetConfig(PlAYER_STORAGE_KEY, "currentVolume", e.target.value);
     setCurrentVolume(e.target.value);
     audioRef.current.volume = Number(e.target.value / 100).toFixed(2);
   };
@@ -278,17 +283,17 @@ const MusicPlayer = () => {
 
   const handleRepeat = ({ isForceRepeat = false, song = null }) => {
     if (!isForceRepeat) {
-      SetConfig(PlAYER_STORAGE_KEY,"isRepeat", !isRepeat);
+      SetConfig(PlAYER_STORAGE_KEY, "isRepeat", !isRepeat);
       dispatch(setRepeat(!isRepeat));
       if (!isRepeat) {
         dispatch(setRandom(false));
-        SetConfig(PlAYER_STORAGE_KEY,"isRandom", false);
+        SetConfig(PlAYER_STORAGE_KEY, "isRandom", false);
       }
     } else {
-      SetConfig(PlAYER_STORAGE_KEY,"isRepeat", true);
+      SetConfig(PlAYER_STORAGE_KEY, "isRepeat", true);
       dispatch(setRepeat(true));
       dispatch(setRandom(false));
-      SetConfig(PlAYER_STORAGE_KEY,"isRandom", false);
+      SetConfig(PlAYER_STORAGE_KEY, "isRandom", false);
       handleRunSongNow(song);
     }
   };
@@ -298,18 +303,21 @@ const MusicPlayer = () => {
     dispatch(setPlaying(true));
     // scrollToActiveSong();
   };
-  const handleDownloadSong= async(songUrl)=>{
-    await fetch(songUrl).then(res=>res.blob()).then(file=>{
-      let tempUrl= URL.createObjectURL(file)
-      let aTag= document.createElement('a');
-      aTag.href=tempUrl;
-      aTag.download= songUrl.replace(/^.*[\\/]/, '')
-      document.body.appendChild(aTag);
-      aTag.click();
-      aTag.remove();
-      URL.revokeObjectURL(tempUrl);
-    })
-  }
+  const handleDownloadSong = async (songUrl) => {
+    await fetch(songUrl.replace('http', 'https'))
+      .then((res) => res.blob())
+      .then((file) => {
+
+        let tempUrl = URL.createObjectURL(file);
+        let aTag = document.createElement("a");
+        aTag.href = tempUrl;
+        aTag.download = songUrl.replace(/^.*[\\/]/, "");
+        document.body.appendChild(aTag);
+        aTag.click();
+        aTag.remove();
+        URL.revokeObjectURL(tempUrl);
+      });
+  };
   const handleRemoveSong = (idSong) => {
     //sắp tới nếu thêm xong phương thức thêm bài thì khi xóa hết bài sẽ hiển thị một cái div là hsết baài(arr.length===0 thì render div kia, ngượjc ailj show div)
     const songsClone = [...songs];
@@ -318,9 +326,9 @@ const MusicPlayer = () => {
       const indexSongFound = songsClone.indexOf(songFound);
       songsClone.splice(indexSongFound, 1);
       dispatch(setSong([...songsClone]));
-      SetConfig(PlAYER_STORAGE_KEY, 'songs', [...songsClone])
+      SetConfig(PlAYER_STORAGE_KEY, "songs", [...songsClone]);
       setPlayedSongs([...songsClone]);
-      if(songsClone.length){
+      if (songsClone.length) {
         setCurrentSongPlay(songsClone[0]);
         dispatch(setPlaying(true));
       }
@@ -367,53 +375,67 @@ const MusicPlayer = () => {
             />
           </div>
           <div className="control flex justify-around items-center mt-6 text-gray-600">
-            <div
-              onClick={() => {
-                handleRepeat({});
-              }}
+            <Tooltip direction="top" delay="200" content="repeat">
+              <div
+                onClick={() => {
+                  handleRepeat({});
+                }}
+              >
+                <RollbackOutlined
+                  className={clsx(
+                    "btn btn-repeat cursor-pointer text-xl",
+                    isRepeat && "active"
+                  )}
+                />
+              </div>
+            </Tooltip>
+            <Tooltip direction="top" delay="200" content="Prev">
+              <div onClick={handlePrev}>
+                <StepBackwardOutlined className="btn btn-prev cursor-pointer text-xl" />
+              </div>
+            </Tooltip>
+            <Tooltip
+              direction="top"
+              delay="200"
+              content={isPlaying ? "Pause" : "Play"}
             >
-              <RollbackOutlined
-                className={clsx(
-                  "btn btn-repeat cursor-pointer text-xl",
-                  isRepeat && "active"
+              <div
+                onClick={() => {
+                  handleTogglePlay();
+                }}
+                className="btn-toggle-play"
+              >
+                {isPlaying ? (
+                  <PauseCircleFilled className="btn btn-play shadow-btn cursor-pointer text-4xl text-pink-600" />
+                ) : (
+                  <PlayCircleFilled className="btn btn-pause shadow-btn cursor-pointer text-4xl text-pink-600" />
                 )}
-              />
-            </div>
-            <div onClick={handlePrev}>
-              <StepBackwardOutlined className="btn btn-prev cursor-pointer text-xl" />
-            </div>
-            <div
-              onClick={() => {
-                handleTogglePlay();
-              }}
-              className="btn-toggle-play"
-            >
-              {isPlaying ? (
-                <PauseCircleFilled className="btn btn-play shadow-btn cursor-pointer text-4xl text-pink-600" />
-              ) : (
-                <PlayCircleFilled className="btn btn-pause shadow-btn cursor-pointer text-4xl text-pink-600" />
-              )}
-            </div>
-            <div onClick={handleNext}>
-              <StepForwardOutlined className="btn btn-next cursor-pointer text-xl" />
-            </div>
-            <div
-              onClick={() => {
-                dispatch(setRandom(!isRandom));
-              SetConfig(PlAYER_STORAGE_KEY,"isRandom", !isRandom);
-                if (!isRandom) {
-                  dispatch(setRepeat(false));
-                SetConfig(PlAYER_STORAGE_KEY,"isRepeat", false);
-                }
-              }}
-            >
-              <RetweetOutlined
-                className={clsx(
-                  "btn btn-random cursor-pointer text-xl",
-                  isRandom && "active"
-                )}
-              />
-            </div>
+              </div>
+            </Tooltip>
+            <Tooltip direction="top" delay="200" content="Next">
+              <div onClick={handleNext}>
+                <StepForwardOutlined className="btn btn-next cursor-pointer text-xl" />
+              </div>
+            </Tooltip>
+            <Tooltip direction="top" delay="200" content="Random">
+              <div
+                onClick={() => {
+                  dispatch(setRandom(!isRandom));
+                  SetConfig(PlAYER_STORAGE_KEY, "isRandom", !isRandom);
+                  if (!isRandom) {
+                    dispatch(setRepeat(false));
+                    SetConfig(PlAYER_STORAGE_KEY, "isRepeat", false);
+                  }
+                }}
+              >
+                <RetweetOutlined
+                  className={clsx(
+                    "btn btn-random cursor-pointer text-xl",
+                    isRandom && "active"
+                  )}
+                />
+              </div>
+            </Tooltip>
           </div>
           <span className="relative">
             <input
@@ -494,7 +516,7 @@ const MusicPlayer = () => {
             className="add-songs cursor-pointer mt-4"
             onClick={handleAddSongs}
           >
-            <AppstoreAddOutlined className="text-red-400 text-lg" /> 
+            <AppstoreAddOutlined className="text-red-400 text-lg" />
             <div className="text">Add song</div>
           </div>
         </div>
