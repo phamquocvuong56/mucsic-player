@@ -11,7 +11,7 @@ const InforModal = () => {
       <div className='modal'>
         <div className="close" onClick={()=>{dispatch(setModal({isShow:false, title:'',content:''}))}}><CloseModalIcon className='text-2xl'/></div>
           <div className="title">{modalState.title}</div>
-          <div className="content">{modalState.content}</div>
+          <div className="content text-ellipsis line-clamp-2 whitespace-pre-line">{modalState.content}</div>
       </div>
     </div>
   )
